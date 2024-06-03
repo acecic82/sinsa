@@ -27,6 +27,10 @@ class ProductCommandService(
             listOf(findProductPort.findById(it)?.productId)
         } ?: findProductPort.findProductId(vo.category, vo.brand, vo.price)
 
+        require( productIdList.isNotEmpty()) {
+            throw ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.message)
+        }
+
         // id가 실제 테이블에 존재하는 않는 경우엔 Exception 을 발생시켜 삭제에 실패했음을 알린다.
         productIdList.forEach {
             it?.let { deleteProductPort.delete(it) }

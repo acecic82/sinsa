@@ -7,7 +7,7 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import java.math.BigDecimal
 
 internal class ProductCommandPortTest : BehaviorSpec() {
@@ -26,10 +26,10 @@ internal class ProductCommandPortTest : BehaviorSpec() {
                 Then("Product 객체를 Return 해야한다.") {
                     val result = productCommandPort.save(product)
 
-                    Assertions.assertEquals(product.productId, result.productId)
-                    Assertions.assertEquals(product.category, result.category)
-                    Assertions.assertEquals(product.brand, result.brand)
-                    Assertions.assertEquals(product.price, result.price)
+                    assertEquals(product.productId, result.productId)
+                    assertEquals(product.category, result.category)
+                    assertEquals(product.brand, result.brand)
+                    assertEquals(product.price, result.price)
                 }
             }
         }
