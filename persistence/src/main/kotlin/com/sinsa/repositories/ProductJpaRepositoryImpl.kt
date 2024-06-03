@@ -40,7 +40,7 @@ class ProductJpaRepositoryImpl(
                         Projections.constructor(
                             CategoryAndPrice::class.java,
                             productEntity.category.`as`(CATEGORY),
-                            productEntity.price.min().`as`(BRAND)
+                            productEntity.price.min().`as`(PRICE)
                         )
                     )
                         .from(productEntity)
@@ -128,7 +128,6 @@ class ProductJpaRepositoryImpl(
 
     companion object {
         const val CATEGORY = "category"
-        const val BRAND = "brand"
         const val PRICE = "price"
     }
 }
