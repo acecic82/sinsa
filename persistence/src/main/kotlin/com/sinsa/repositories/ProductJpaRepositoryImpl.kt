@@ -74,7 +74,7 @@ class ProductJpaRepositoryImpl(
             .fetch()
     }
 
-    override fun findLowestTotalPrice(brandList: List<String>): List<ProductInfo> {
+    override fun findProductListByBrandList(brandList: List<String>): List<ProductInfo> {
         return from(productEntity)
             .where(productEntity.brand.`in`(brandList))
             .select(

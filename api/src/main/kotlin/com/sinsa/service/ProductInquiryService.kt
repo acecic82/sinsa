@@ -39,7 +39,7 @@ class ProductInquiryService(
             brandInfoList.filter { it.price == lowestPriceBrand.price }.map { it.brand }
 
         // 최저가 리스트로 상품에서 검색해서 리스트를 반환합니다.
-        return findProductPort.findLowestBrandProductList(lowestPriceBrandList)
+        return findProductPort.findBrandProductList(lowestPriceBrandList)
     }
 
     override fun findLowAndHighBrand(category: String): LowHighBrandInfoVO {

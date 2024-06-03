@@ -25,8 +25,8 @@ class ProductInquiryPort (
         }
     }
 
-    override fun findLowestBrandProductList(brandList: List<String>): List<ProductInfoVO> {
-        return productJpaRepository.findLowestTotalPrice(brandList).map {
+    override fun findBrandProductList(brandList: List<String>): List<ProductInfoVO> {
+        return productJpaRepository.findProductListByBrandList(brandList).map {
             ProductInfoVO(it.id, it.category, it.brand, it.price)
         }
     }
