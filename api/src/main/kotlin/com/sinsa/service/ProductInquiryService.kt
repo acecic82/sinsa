@@ -7,8 +7,6 @@ import com.sinsa.application.vo.LowHighBrandInfoVO
 import com.sinsa.application.vo.ProductInfoVO
 import com.sinsa.entity.Product.Companion.BRAND_SUM_PRICE_LIMIT
 import com.sinsa.entity.Product.Companion.ORDER_PRICE_LIMIT
-import com.sinsa.response.ProductException
-import com.sinsa.response.enum.ExceptionCode.*
 import org.springframework.stereotype.Service
 
 
@@ -47,10 +45,6 @@ class ProductInquiryService(
         //변수명이 candidate 인 이유는 limit 된 값이 1이 아닌이상 최소를 보장하지 않기 때문입니다.
         val lowestListCandidate = findProductPort.findLowestListByCategory(category, ORDER_PRICE_LIMIT)
         val highestListCandidate = findProductPort.findHighestListByCategory(category, ORDER_PRICE_LIMIT)
-
-        require(lowestListCandidate.isNotEmpty() && highestListCandidate.isNotEmpty()) {
-            throw ProductException(PRODUCT_NOT_FOUND_CATEGORY, PRODUCT_NOT_FOUND_CATEGORY.message)
-        }
 
         //최대, 최소 값을 찾습니다.
         val lowestBrand = lowestListCandidate.minBy { it.price }
