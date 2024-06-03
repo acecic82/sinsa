@@ -1,0 +1,8 @@
+spring:
+  application:
+    name : sinsa-api
+
+server:
+  port: 8080
+
+
