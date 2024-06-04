@@ -4,6 +4,7 @@ import com.sinsa.application.outport.FindProductPort
 import com.sinsa.application.vo.BrandAndPriceVO
 import com.sinsa.application.vo.LowHighBrandInfoVO
 import com.sinsa.application.vo.ProductInfoVO
+import com.sinsa.entity.Product
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.every
@@ -94,6 +95,31 @@ internal class ProductInquiryServiceTest: BehaviorSpec() {
                         assertEquals(result.highestBrandList[i].brand, expectedResult.highestBrandList[i].brand)
                         assertEquals(result.highestBrandList[i].price, expectedResult.highestBrandList[i].price)
                     }
+                }
+            }
+        }
+
+        Given("findAllProduct") {
+            When("모든 product 를 조회할 때") {
+                val product = Product(1L, "상의", "A", BigDecimal(1_000))
+
+                every { findProductPort.findAll() } returns listOf(product)
+
+                Then("VO로 바뀐 형태를 return 해야 한다.") {
+                    val expectedResult =
+                        listOf(ProductInfoVO(product.productId, product.category, product.brand, product.price))
+
+                    val result = productInquiryService.findAllProduct()
+
+                    assertEquals(result.size, expectedResult.size)
+
+                    for(i in  0..result.size - 1) {
+                        assertEquals(result[i].productId, expectedResult[i].productId)
+                        assertEquals(result[i].category, expectedResult[i].category)
+                        assertEquals(result[i].brand, expectedResult[i].brand)
+                        assertEquals(result[i].price, expectedResult[i].price)
+                    }
+
                 }
             }
         }

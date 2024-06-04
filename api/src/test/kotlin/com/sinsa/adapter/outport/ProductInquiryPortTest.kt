@@ -165,5 +165,28 @@ internal class ProductInquiryPortTest : BehaviorSpec() {
                 }
             }
         }
+
+        Given("다 찾는 경우") {
+            When("전체 조회를 할 때") {
+                val product = ProductEntity(1L, "상의", "A", BigDecimal(1_000))
+
+                every { productJpaRepository.findAll() } returns listOf(product)
+
+                Then("Product 로 반환한 값을 보내야 한다.") {
+                    val expectedOutPut = listOf(Product(1L, "상의", "A", BigDecimal(1_000)))
+
+                    val result = productInquiryPort.findAll()
+
+                    assertEquals(result.size, expectedOutPut.size)
+
+                    for(i in  0..result.size - 1) {
+                        assertEquals(result[i].productId, expectedOutPut[i].productId)
+                        assertEquals(result[i].category, expectedOutPut[i].category)
+                        assertEquals(result[i].brand, expectedOutPut[i].brand)
+                        assertEquals(result[i].price, expectedOutPut[i].price)
+                    }
+                }
+            }
+        }
     }
 }

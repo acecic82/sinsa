@@ -62,6 +62,8 @@ class ProductInquiryService(
         return LowHighBrandInfoVO(category, lowestList, highestList)
     }
 
+    //이런 기능은 굉장히 많은 데이터가 검색될 수 있으므로 반드시 paging 을 함꼐 사용하여야 합니다.
+    //하지만 해당 앱은 현재 고정된 사이즈의 데이터를 가지고 있으므로 우선 별도의 페이징 없이 처리했습니다.
     override fun findAllProduct(): List<ProductInfoVO> {
         return findProductPort.findAll().map {
             ProductInfoVO(it.productId, it.category, it.brand, it.price)

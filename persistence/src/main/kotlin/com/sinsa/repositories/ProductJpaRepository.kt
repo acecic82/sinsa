@@ -1,8 +1,8 @@
 package com.sinsa.repositories
 
-import com.sinsa.vo.ProductInfo
 import com.sinsa.entity.ProductEntity
 import com.sinsa.vo.BrandAndPrice
+import com.sinsa.vo.ProductInfo
 import org.springframework.data.jpa.repository.JpaRepository
 import java.math.BigDecimal
 
