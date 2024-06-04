@@ -7,7 +7,7 @@ import com.sinsa.adapter.dto.ProductInfoDTO
 import com.sinsa.application.inport.FindAllProductUseCase
 import com.sinsa.application.inport.FindLowAndHighBrandUseCase
 import com.sinsa.application.inport.FindLowestProductUseCase
-import com.sinsa.common.response.SuccessResponseDTO
+import com.sinsa.common.response.ResponseDTO
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,28 +21,28 @@ class ProductInquiryController(
     private val findAllProductUseCase: FindAllProductUseCase
 ) {
     @GetMapping("/all")
-    fun getProductAll(): SuccessResponseDTO<List<ProductInfoDTO>> {
+    fun getProductAll(): ResponseDTO<List<ProductInfoDTO>> {
         val dtoList = findAllProductUseCase.findAllProduct().map {
             ProductInfoDTO.from(it)
         }
-        return SuccessResponseDTO.success(dtoList)
+        return ResponseDTO.success(dtoList)
     }
 
     @GetMapping("/lowest/all-category")
-    fun getLowestPriceAllCategory(): SuccessResponseDTO<LowestCategoryInfoDTO> {
-        return SuccessResponseDTO.success(LowestCategoryInfoDTO.from(findLowestProductUseCase.findLowestPriceAllCategory()))
+    fun getLowestPriceAllCategory(): ResponseDTO<LowestCategoryInfoDTO> {
+        return ResponseDTO.success(LowestCategoryInfoDTO.from(findLowestProductUseCase.findLowestPriceAllCategory()))
     }
 
     @GetMapping("/lowest/brand")
-    fun getLowestPriceBrand(): SuccessResponseDTO<List<LowestBrandInfoDTO>> {
-        return SuccessResponseDTO.success(findLowestProductUseCase.findLowestPriceAllBrand().groupBy { it.brand }.map {
+    fun getLowestPriceBrand(): ResponseDTO<List<LowestBrandInfoDTO>> {
+        return ResponseDTO.success(findLowestProductUseCase.findLowestPriceAllBrand().groupBy { it.brand }.map {
             LowestBrandInfoDTO.fromBrand(it.key, it.value)
         })
     }
 
     @GetMapping("/low-high/brand/{category}")
-    fun getLowAndHighCategory(@PathVariable category: String): SuccessResponseDTO<LowHighBrandInfoDTO> {
-        return SuccessResponseDTO.success(findLowAndHighBrandUseCase.findLowAndHighBrand(category).let {
+    fun getLowAndHighCategory(@PathVariable category: String): ResponseDTO<LowHighBrandInfoDTO> {
+        return ResponseDTO.success(findLowAndHighBrandUseCase.findLowAndHighBrand(category).let {
             LowHighBrandInfoDTO.from(it)
         })
     }
