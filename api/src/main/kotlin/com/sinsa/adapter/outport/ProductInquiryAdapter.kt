@@ -10,7 +10,7 @@ import java.math.BigDecimal
 import kotlin.jvm.optionals.getOrNull
 
 @Component
-class ProductInquiryPort (
+class ProductInquiryAdapter (
     private val productJpaRepository: ProductJpaRepository
 ): FindProductPort {
     override fun findLowestCategoryList(): List<ProductInfoVO> {

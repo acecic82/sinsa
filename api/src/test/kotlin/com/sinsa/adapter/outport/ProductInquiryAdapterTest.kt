@@ -15,19 +15,19 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.math.BigDecimal
 import kotlin.jvm.optionals.getOrNull
 
-internal class ProductInquiryPortTest : BehaviorSpec() {
+internal class ProductInquiryAdapterTest : BehaviorSpec() {
     override fun isolationMode(): IsolationMode = IsolationMode.SingleInstance
 
     init {
         val productJpaRepository = mockk<ProductJpaRepository>()
-        val productInquiryPort = ProductInquiryPort(productJpaRepository)
+        val productInquiryAdapter = ProductInquiryAdapter(productJpaRepository)
 
         Given("ID가 주어진 경우") {
             When("조회한 경우가 null 일 때") {
                 every { productJpaRepository.findById(any()).getOrNull() } returns null
 
                 Then("결과를 Null return 해야 한다.") {
-                    val result = productInquiryPort.findById(1L)
+                    val result = productInquiryAdapter.findById(1L)
                     assertEquals(result, null)
                 }
             }
@@ -39,7 +39,7 @@ internal class ProductInquiryPortTest : BehaviorSpec() {
                 val expectedResult = Product(null,  "상의", "A", BigDecimal(10_000))
 
                 Then("Domain product 와 동일한 결과가 나와야한다.") {
-                    val realResult = productInquiryPort.findById(1L)
+                    val realResult = productInquiryAdapter.findById(1L)
                     assertEquals(expectedResult, realResult)
                 }
             }
@@ -52,7 +52,7 @@ internal class ProductInquiryPortTest : BehaviorSpec() {
                 every { productJpaRepository.findProductId(any(), any(), any()) } returns idList
 
                 Then("repository 가 반환한 값을 반환해야 한다.") {
-                    val result = productInquiryPort.findProductId("category", "brand", BigDecimal(100))
+                    val result = productInquiryAdapter.findProductId("category", "brand", BigDecimal(100))
                     assertEquals(result, idList)
                 }
             }
@@ -68,7 +68,7 @@ internal class ProductInquiryPortTest : BehaviorSpec() {
                 Then("VO로 변환한 값을 return 해야한다.") {
                     val voList = minBrandAndPriceList.map { BrandAndPriceVO(it.brand, it.price) }
 
-                    val result = productInquiryPort.findHighestListByCategory("category", 10L)
+                    val result = productInquiryAdapter.findHighestListByCategory("category", 10L)
 
                     assertEquals(voList.size, result.size)
 
@@ -85,7 +85,7 @@ internal class ProductInquiryPortTest : BehaviorSpec() {
                 Then("VO로 변환한 값을 return 해야한다.") {
                     val voList = maxBrandAndPriceList.map { BrandAndPriceVO(it.brand, it.price) }
 
-                    val result = productInquiryPort.findLowestListByCategory("category", 10L)
+                    val result = productInquiryAdapter.findLowestListByCategory("category", 10L)
 
                     assertEquals(voList.size, result.size)
 
@@ -106,7 +106,7 @@ internal class ProductInquiryPortTest : BehaviorSpec() {
                 Then("ProductInfoVO 로 변환해서 반환해야 한다.") {
                     val voList = listOf(ProductInfoVO(product.id, product.category, product.brand, product.price))
 
-                    val result = productInquiryPort.findBrandProductList(listOf("A"))
+                    val result = productInquiryAdapter.findBrandProductList(listOf("A"))
 
                     assertEquals(result.size, voList.size)
 
@@ -131,7 +131,7 @@ internal class ProductInquiryPortTest : BehaviorSpec() {
                         BrandAndPriceVO(it.brand, it.price)
                     }
 
-                    val result = productInquiryPort.findAllBrandSumPrice(1L)
+                    val result = productInquiryAdapter.findAllBrandSumPrice(1L)
 
                     assertEquals(voList.size, result.size)
 
@@ -152,7 +152,7 @@ internal class ProductInquiryPortTest : BehaviorSpec() {
                 Then("VO로 변환한 list 를 반환해야 한다.") {
                     val voList = productList.map { ProductInfoVO(it.id, it.category, it.brand, it.price) }
 
-                    val result = productInquiryPort.findLowestCategoryList()
+                    val result = productInquiryAdapter.findLowestCategoryList()
 
                     assertEquals(result.size, voList.size)
 
@@ -175,7 +175,7 @@ internal class ProductInquiryPortTest : BehaviorSpec() {
                 Then("Product 로 반환한 값을 보내야 한다.") {
                     val expectedOutPut = listOf(Product(1L, "상의", "A", BigDecimal(1_000)))
 
-                    val result = productInquiryPort.findAll()
+                    val result = productInquiryAdapter.findAll()
 
                     assertEquals(result.size, expectedOutPut.size)
 

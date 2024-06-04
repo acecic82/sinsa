@@ -8,7 +8,7 @@ import com.sinsa.repositories.ProductJpaRepository
 import org.springframework.stereotype.Component
 
 @Component
-class ProductCommandPort(
+class ProductCommandAdapter(
     private val productJpaRepository: ProductJpaRepository
 ) : DeleteProductPort, SaveProductPort {
     override fun delete(id: Long) {

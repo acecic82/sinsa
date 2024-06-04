@@ -10,12 +10,12 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*
 import java.math.BigDecimal
 
-internal class ProductCommandPortTest : BehaviorSpec() {
+internal class ProductCommandAdapterTest : BehaviorSpec() {
     override fun isolationMode(): IsolationMode = IsolationMode.SingleInstance
 
     init {
         val productJpaRepository = mockk<ProductJpaRepository>()
-        val productCommandPort = ProductCommandPort(productJpaRepository)
+        val productCommandAdapter = ProductCommandAdapter(productJpaRepository)
 
         Given("Save 하는 경우") {
             When("Save 이후 세이브 된 정보를 return 했을 때") {
@@ -24,7 +24,7 @@ internal class ProductCommandPortTest : BehaviorSpec() {
                 every { productJpaRepository.save(any()) } returns productEntity
 
                 Then("Product 객체를 Return 해야한다.") {
-                    val result = productCommandPort.save(product)
+                    val result = productCommandAdapter.save(product)
 
                     assertEquals(product.productId, result.productId)
                     assertEquals(product.category, result.category)
