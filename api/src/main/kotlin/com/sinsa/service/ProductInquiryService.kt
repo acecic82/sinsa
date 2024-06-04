@@ -1,5 +1,6 @@
 package com.sinsa.service
 
+import com.sinsa.application.inport.FindAllProductUseCase
 import com.sinsa.application.inport.FindLowAndHighBrandUseCase
 import com.sinsa.application.inport.FindLowestProductUseCase
 import com.sinsa.application.outport.FindProductPort
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service
 @Service
 class ProductInquiryService(
     private val findProductPort: FindProductPort
-): FindLowestProductUseCase, FindLowAndHighBrandUseCase {
+): FindLowestProductUseCase, FindLowAndHighBrandUseCase, FindAllProductUseCase {
     override fun findLowestPriceAllCategory(): List<ProductInfoVO> {
         return findProductPort.findLowestCategoryList()
     }
@@ -59,5 +60,11 @@ class ProductInquiryService(
         val highestList = highestListCandidate.filter { highestBrand.price == it.price }
 
         return LowHighBrandInfoVO(category, lowestList, highestList)
+    }
+
+    override fun findAllProduct(): List<ProductInfoVO> {
+        return findProductPort.findAll().map {
+            ProductInfoVO(it.productId, it.category, it.brand, it.price)
+        }
     }
 }

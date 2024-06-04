@@ -50,4 +50,10 @@ class ProductInquiryPort (
     override fun findById(id: Long): Product? {
         return productJpaRepository.findById(id).getOrNull()?.toProduct()
     }
+
+    override fun findAll(): List<Product> {
+        return productJpaRepository.findAll().map {
+            it.toProduct()
+        }
+    }
 }

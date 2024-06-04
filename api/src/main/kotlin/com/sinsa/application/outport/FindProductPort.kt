@@ -13,4 +13,6 @@ interface FindProductPort {
     fun findHighestListByCategory(category: String, limit: Long) : List<BrandAndPriceVO>
     fun findProductId(category:String, brand: String, price: BigDecimal): List<Long?>
     fun findById(id: Long): Product?
+
+    fun findAll(): List<Product>
 }

@@ -3,6 +3,8 @@ package com.sinsa.adapter.inport
 import com.sinsa.adapter.dto.LowHighBrandInfoDTO
 import com.sinsa.adapter.dto.LowestBrandInfoDTO
 import com.sinsa.adapter.dto.LowestCategoryInfoDTO
+import com.sinsa.adapter.dto.ProductInfoDTO
+import com.sinsa.application.inport.FindAllProductUseCase
 import com.sinsa.application.inport.FindLowAndHighBrandUseCase
 import com.sinsa.application.inport.FindLowestProductUseCase
 import com.sinsa.common.response.SuccessResponseDTO
@@ -15,8 +17,16 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/product")
 class ProductInquiryController(
     private val findLowestProductUseCase: FindLowestProductUseCase,
-    private val findLowAndHighBrandUseCase: FindLowAndHighBrandUseCase
+    private val findLowAndHighBrandUseCase: FindLowAndHighBrandUseCase,
+    private val findAllProductUseCase: FindAllProductUseCase
 ) {
+    @GetMapping("/all")
+    fun getProductAll(): SuccessResponseDTO<List<ProductInfoDTO>> {
+        val dtoList = findAllProductUseCase.findAllProduct().map {
+            ProductInfoDTO.from(it)
+        }
+        return SuccessResponseDTO.success(dtoList)
+    }
 
     @GetMapping("/lowest/all-category")
     fun getLowestPriceAllCategory(): SuccessResponseDTO<LowestCategoryInfoDTO> {
