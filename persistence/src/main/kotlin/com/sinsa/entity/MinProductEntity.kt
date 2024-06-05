@@ -1,6 +1,7 @@
 package com.sinsa.entity
 
 import jakarta.persistence.*
+import org.jetbrains.annotations.NotNull
 import java.math.BigDecimal
 
 
@@ -19,8 +20,11 @@ data class MinProductEntity (
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
+    @NotNull
     val category: String,
+    @NotNull
     val brand: String,
+    @NotNull
     val price: BigDecimal
 ) {
     constructor() : this(null, "", "", BigDecimal.ZERO)

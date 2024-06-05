@@ -21,20 +21,29 @@ class ProductCommandService(
 
     @Transactional
     override fun delete(vo: ProductInfoVO): Boolean {
-        // 들어온 id 가 있다면 해당 ID로 리스트를 만들고 없다면 category,brand,price 가 일치하는
-        // 항목을 지워야할 대상으로 삼는다.
-        val productIdList = vo.productId?.let {
+        //들어온 카테고리, Brand 기준으로 productId를 뽑아낸다.
+        //만약 productId 들이 1개라면 삭제할 수 없다. 왜냐하면 category & brand 를 기준으로
+        //상품이 최소 1개 존재해야 하기 떄문입니다.
+        val productIdList = findProductPort.findProductId(vo.category, vo.brand, null)
+
+        require(productIdList.size > 1) {
+            throw ProductException(PRODUCT_CATEGORY_BRAND_NOT_ENOUGH, PRODUCT_CATEGORY_BRAND_NOT_ENOUGH.message)
+        }
+
+        //삭제할 대상 확정하기
+        //id가 없다면 category, brand, price 를 기준으로 삭제를 시도합니다.
+        //같은 브랜드, 카테고리, 가격의 상품이 존재하면 같이 지워질 수 있지만, 오류가 없다면 id 가 null 로
+        //들어오는 경우는 없기 때문에 잘 발생하기 않고 3가지 조건이 모두 겹칠 가능성도 크지 않기 떄문에
+        //삭제를 이런식으로 처리해봤습니다.
+        val deleteCandidate = vo.productId?.let {
             listOf(findProductPort.findById(it)?.productId)
         } ?: findProductPort.findProductId(vo.category, vo.brand, vo.price)
 
-        require( productIdList.isNotEmpty()) {
-            throw ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.message)
-        }
-
         // id가 실제 테이블에 존재하는 않는 경우엔 Exception 을 발생시켜 삭제에 실패했음을 알린다.
         productIdList.forEach {
-            it?.let { deleteProductPort.delete(it) }
-                ?: throw ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.message)
+            it?.let {
+                deleteProductPort.delete(it)
+            } ?: throw ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.message)
         }
 
         return true

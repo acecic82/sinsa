@@ -43,7 +43,7 @@ class ProductInquiryAdapter (
         }
     }
 
-    override fun findProductId(category: String, brand: String, price: BigDecimal): List<Long?> {
+    override fun findProductId(category: String, brand: String, price: BigDecimal?): List<Long?> {
         return productJpaRepository.findProductId(category, brand, price)
     }
 

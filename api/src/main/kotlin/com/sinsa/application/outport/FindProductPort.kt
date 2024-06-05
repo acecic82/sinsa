@@ -11,7 +11,7 @@ interface FindProductPort {
     fun findBrandProductList(brandList: List<String>) : List<ProductInfoVO>
     fun findLowestListByCategory(category: String, limit: Long) : List<BrandAndPriceVO>
     fun findHighestListByCategory(category: String, limit: Long) : List<BrandAndPriceVO>
-    fun findProductId(category:String, brand: String, price: BigDecimal): List<Long?>
+    fun findProductId(category:String, brand: String, price: BigDecimal?): List<Long?>
     fun findById(id: Long): Product?
 
     fun findAll(): List<Product>

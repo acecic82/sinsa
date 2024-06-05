@@ -117,11 +117,12 @@ class ProductJpaRepositoryImpl(
             .fetch()
     }
 
-    override fun findProductId(category: String, brand: String, price: BigDecimal): List<Long?> {
+    override fun findProductId(category: String, brand: String, price: BigDecimal?): List<Long?> {
         return from(productEntity)
             .where(productEntity.category.eq(category)
                 .and(productEntity.brand.eq(brand))
-                .and(productEntity.price.eq(price)))
+                .and(price?.let { productEntity.price.eq(price) })
+            )
             .select(productEntity.id)
             .fetch()
     }
