@@ -12,10 +12,6 @@ interface ProductJpaRepository: JpaRepository<ProductEntity, Long>, ProductJpaRe
 interface ProductJpaRepositoryCustom {
     fun findLowestPriceAllCategoryInfo(): List<ProductInfo>
 
-    fun findAllBrandSumPrice(limit: Long): List<BrandAndPrice>
-
-    fun findProductListByBrandList(brandList: List<String>): List<ProductInfo>
-
     fun findLowestInfoByCategory(category: String, limit: Long): List<BrandAndPrice>
 
     fun findHighestInfoByCategory(category: String, limit: Long): List<BrandAndPrice>

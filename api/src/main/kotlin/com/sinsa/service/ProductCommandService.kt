@@ -35,12 +35,13 @@ class ProductCommandService(
         //같은 브랜드, 카테고리, 가격의 상품이 존재하면 같이 지워질 수 있지만, 오류가 없다면 id 가 null 로
         //들어오는 경우는 없기 때문에 잘 발생하기 않고 3가지 조건이 모두 겹칠 가능성도 크지 않기 떄문에
         //삭제를 이런식으로 처리해봤습니다.
+
         val deleteCandidate = vo.productId?.let {
             listOf(findProductPort.findById(it)?.productId)
         } ?: findProductPort.findProductId(vo.category, vo.brand, vo.price)
 
         // id가 실제 테이블에 존재하는 않는 경우엔 Exception 을 발생시켜 삭제에 실패했음을 알린다.
-        productIdList.forEach {
+        deleteCandidate.forEach {
             it?.let {
                 deleteProductPort.delete(it)
             } ?: throw ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.message)

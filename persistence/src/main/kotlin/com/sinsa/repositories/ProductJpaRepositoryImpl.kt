@@ -59,36 +59,6 @@ class ProductJpaRepositoryImpl(
                 .fetch()
     }
 
-    override fun findAllBrandSumPrice(limit: Long): List<BrandAndPrice> {
-        return from(productEntity)
-            .groupBy(productEntity.brand)
-            .orderBy(productEntity.price.sum().asc())
-            .limit(limit)
-            .select(
-                Projections.constructor(
-                    BrandAndPrice::class.java,
-                    productEntity.brand,
-                    productEntity.price.sum()
-                )
-            )
-            .fetch()
-    }
-
-    override fun findProductListByBrandList(brandList: List<String>): List<ProductInfo> {
-        return from(productEntity)
-            .where(productEntity.brand.`in`(brandList))
-            .select(
-                Projections.constructor(
-                    ProductInfo::class.java,
-                    productEntity.id,
-                    productEntity.category,
-                    productEntity.brand,
-                    productEntity.price
-                )
-            )
-            .fetch()
-    }
-
     override fun findLowestInfoByCategory(category: String, limit: Long): List<BrandAndPrice> {
         return from(productEntity)
             .where(productEntity.category.eq(category))

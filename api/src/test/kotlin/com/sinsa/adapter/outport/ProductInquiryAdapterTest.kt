@@ -4,6 +4,7 @@ import com.sinsa.application.vo.BrandAndPriceVO
 import com.sinsa.application.vo.ProductInfoVO
 import com.sinsa.entity.Product
 import com.sinsa.entity.ProductEntity
+import com.sinsa.repositories.MinProductJpaRepository
 import com.sinsa.repositories.ProductJpaRepository
 import com.sinsa.vo.BrandAndPrice
 import com.sinsa.vo.ProductInfo
@@ -20,7 +21,8 @@ internal class ProductInquiryAdapterTest : BehaviorSpec() {
 
     init {
         val productJpaRepository = mockk<ProductJpaRepository>()
-        val productInquiryAdapter = ProductInquiryAdapter(productJpaRepository)
+        val minProductJpaRepository = mockk<MinProductJpaRepository>()
+        val productInquiryAdapter = ProductInquiryAdapter(productJpaRepository, minProductJpaRepository)
 
         Given("ID가 주어진 경우") {
             When("조회한 경우가 null 일 때") {
@@ -101,7 +103,7 @@ internal class ProductInquiryAdapterTest : BehaviorSpec() {
             val product = ProductInfo(1L, "상의", "A", BigDecimal(100))
 
             When("ProductInfo 를 Return 했을 때") {
-                every { productJpaRepository.findProductListByBrandList(any()) } returns listOf(product)
+                every { minProductJpaRepository.findProductListByBrandList(any()) } returns listOf(product)
 
                 Then("ProductInfoVO 로 변환해서 반환해야 한다.") {
                     val voList = listOf(ProductInfoVO(product.id, product.category, product.brand, product.price))
@@ -124,7 +126,7 @@ internal class ProductInquiryAdapterTest : BehaviorSpec() {
             When("brand 와 가격의 정보를 반환 했을 때") {
                 val brandAndPriceList = listOf(BrandAndPrice("A", BigDecimal(100)), BrandAndPrice("B", BigDecimal(200)))
 
-                every { productJpaRepository.findAllBrandSumPrice(any()) } returns brandAndPriceList
+                every { minProductJpaRepository.findAllBrandSumPrice(any()) } returns brandAndPriceList
 
                 Then("VO로 변환한 값을 반환해야 한다.") {
                     val voList = brandAndPriceList.map {

@@ -4,6 +4,7 @@ import com.sinsa.application.outport.FindProductPort
 import com.sinsa.application.vo.BrandAndPriceVO
 import com.sinsa.application.vo.ProductInfoVO
 import com.sinsa.entity.Product
+import com.sinsa.repositories.MinProductJpaRepository
 import com.sinsa.repositories.ProductJpaRepository
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
@@ -11,7 +12,8 @@ import kotlin.jvm.optionals.getOrNull
 
 @Component
 class ProductInquiryAdapter (
-    private val productJpaRepository: ProductJpaRepository
+    private val productJpaRepository: ProductJpaRepository,
+    private val minProductJpaRepository: MinProductJpaRepository
 ): FindProductPort {
     override fun findLowestCategoryList(): List<ProductInfoVO> {
         return productJpaRepository.findLowestPriceAllCategoryInfo().map {
@@ -20,13 +22,13 @@ class ProductInquiryAdapter (
     }
 
     override fun findAllBrandSumPrice(limit: Long): List<BrandAndPriceVO> {
-        return productJpaRepository.findAllBrandSumPrice(limit).map {
+        return minProductJpaRepository.findAllBrandSumPrice(limit).map {
             BrandAndPriceVO(it.brand, it.price)
         }
     }
 
     override fun findBrandProductList(brandList: List<String>): List<ProductInfoVO> {
-        return productJpaRepository.findProductListByBrandList(brandList).map {
+        return minProductJpaRepository.findProductListByBrandList(brandList).map {
             ProductInfoVO(it.id, it.category, it.brand, it.price)
         }
     }

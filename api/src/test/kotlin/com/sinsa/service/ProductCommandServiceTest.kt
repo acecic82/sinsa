@@ -28,10 +28,21 @@ internal class ProductCommandServiceTest : BehaviorSpec() {
             val productVO = ProductInfoVO(1L, "상의", "A", BigDecimal(100))
             val nullProductVO = ProductInfoVO(null, "", "", BigDecimal.ZERO)
 
-            When("category, brand, price 로 조회한 결과가 없을 때") {
-                every { findProductPort.findProductId(any(), any(), any()) } returns listOf()
+            When("category, brand 로 조회한 결과가 없을 때") {
+                every { findProductPort.findProductId(any(), any(), null) } returns listOf()
 
-                Then("삭제할 대상이 없는 경우 Product Not found exception 발생") {
+                Then("삭제할 대상이 없는 경우 Product exception 발생") {
+
+                    shouldThrow<ProductException> {
+                        productCommandService.delete(nullProductVO)
+                    }
+                }
+            }
+
+            When("category, brand 로 조회한 결과가 1개만 있는 경우") {
+                every { findProductPort.findProductId(any(), any(), null) } returns listOf(1L)
+
+                Then("삭제할 대상이 1개인 경우 Product exception 발생") {
 
                     shouldThrow<ProductException> {
                         productCommandService.delete(nullProductVO)
@@ -40,6 +51,7 @@ internal class ProductCommandServiceTest : BehaviorSpec() {
             }
 
             When("id로 찾은 결과가 없을 때") {
+                every { findProductPort.findProductId(any(), any(), null) } returns listOf(1L, 2L)
                 every { findProductPort.findById(any()) } returns null
 
                 Then("삭제할 대상이 없는 경우 Product Not found exception 발생") {
@@ -53,6 +65,7 @@ internal class ProductCommandServiceTest : BehaviorSpec() {
             When("id로 찾은 삭제 대상이 있는 경우") {
                 val product = Product(1L, "", "", BigDecimal.ZERO)
 
+                every { findProductPort.findProductId(any(), any(), null) } returns listOf(1L, 2L)
                 every { findProductPort.findById(any()) } returns product
 
                 Then("삭제 완료 후 true 를 return 한다.") {
@@ -66,7 +79,8 @@ internal class ProductCommandServiceTest : BehaviorSpec() {
 
             When("category, brand, price 로 찾은 데이터가 있어서 삭제할 때") {
 
-                every { findProductPort.findProductId(any(), any(), any()) } returns listOf(1L)
+                every { findProductPort.findProductId(any(), any(), null) } returns listOf(1L, 2L)
+                every { findProductPort.findProductId(any(), any(), any()) } returns listOf(1L, 2L)
 
                 Then("삭제 완료 후 true 를 return 한다.") {
                     every { deleteProductPort.delete(any()) } returns mockk()
