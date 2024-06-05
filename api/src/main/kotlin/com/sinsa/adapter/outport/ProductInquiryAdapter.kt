@@ -58,4 +58,10 @@ class ProductInquiryAdapter (
             it.toProduct()
         }
     }
+
+    override fun findMinProduct(category: String, brand: String): ProductInfoVO? {
+        return minProductJpaRepository.findProductByCategoryAndBrand(category, brand)?.let {
+            ProductInfoVO(it.id, it.category, it.brand, it.price)
+        }
+    }
 }

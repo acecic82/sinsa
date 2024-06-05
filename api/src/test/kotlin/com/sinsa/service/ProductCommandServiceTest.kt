@@ -1,6 +1,7 @@
 package com.sinsa.service
 
 import com.sinsa.application.outport.DeleteProductPort
+import com.sinsa.application.outport.FindBrandPort
 import com.sinsa.application.outport.FindProductPort
 import com.sinsa.application.outport.SaveProductPort
 import com.sinsa.application.vo.ProductInfoVO
@@ -21,8 +22,10 @@ internal class ProductCommandServiceTest : BehaviorSpec() {
         val findProductPort = mockk<FindProductPort>()
         val deleteProductPort = mockk<DeleteProductPort>()
         val saveProductPort = mockk<SaveProductPort>()
+        val findBrandPort = mockk<FindBrandPort>()
 
-        val productCommandService = ProductCommandService(findProductPort, deleteProductPort, saveProductPort)
+        val productCommandService =
+            ProductCommandService(findProductPort, deleteProductPort, saveProductPort, findBrandPort)
 
         Given("Delete 를 수행하는 경우") {
             val productVO = ProductInfoVO(1L, "상의", "A", BigDecimal(100))
@@ -156,9 +159,34 @@ internal class ProductCommandServiceTest : BehaviorSpec() {
         Given("Save 를 수행하는 경우") {
             val productVO = ProductInfoVO(1L, "상의", "A", BigDecimal(100))
 
+            When("brand 가 존재하지 않을 때") {
+
+                every { findBrandPort.findExistBrand(any()) } returns null
+
+                Then("ProductException 발생") {
+                    shouldThrow<ProductException> {
+                        productCommandService.save(productVO)
+                    }
+                }
+            }
+
+            When("minProduct 가 존재하지 않는 경우") {
+                every { findBrandPort.findExistBrand(any()) } returns "A"
+
+                every { findProductPort.findMinProduct(any(), any()) } returns null
+
+                Then("ProductException 발생") {
+                    shouldThrow<ProductException> {
+                        productCommandService.save(productVO)
+                    }
+                }
+            }
+
             When("저장한 데이터와 원본 데이터가 다른 경우") {
                 val updatedProduct = Product(1L, "상의2", "A", BigDecimal(100))
 
+                every { findBrandPort.findExistBrand(any()) } returns "A"
+                every { findProductPort.findMinProduct(any(), any()) } returns productVO
                 every { saveProductPort.save(any()) } returns updatedProduct
 
                 Then("ProductException 발생") {
@@ -171,6 +199,8 @@ internal class ProductCommandServiceTest : BehaviorSpec() {
             When("저장한 데이터와 원본 데이터가 일치하는 경우") {
                 val updatedProduct = Product(1L, "상의", "A", BigDecimal(100))
 
+                every { findBrandPort.findExistBrand(any()) } returns "A"
+                every { findProductPort.findMinProduct(any(), any()) } returns productVO
                 every { saveProductPort.save(any()) } returns updatedProduct
 
                 Then("true return") {

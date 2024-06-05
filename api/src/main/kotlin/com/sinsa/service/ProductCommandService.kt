@@ -4,6 +4,7 @@ import com.sinsa.application.inport.DeleteProductUseCase
 import com.sinsa.application.inport.SaveProductUseCase
 import com.sinsa.application.inport.UpdateProductUseCase
 import com.sinsa.application.outport.DeleteProductPort
+import com.sinsa.application.outport.FindBrandPort
 import com.sinsa.application.outport.FindProductPort
 import com.sinsa.application.outport.SaveProductPort
 import com.sinsa.application.vo.ProductInfoVO
@@ -11,12 +12,15 @@ import com.sinsa.response.ProductException
 import com.sinsa.response.enum.ExceptionCode.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 
 @Service
 class ProductCommandService(
     private val findProductPort: FindProductPort,
     private val deleteProductPort: DeleteProductPort,
-    private val saveProductPort: SaveProductPort
+    private val saveProductPort: SaveProductPort,
+    private val findBrandPort: FindBrandPort,
+
 ) : DeleteProductUseCase, SaveProductUseCase, UpdateProductUseCase {
 
     @Transactional
@@ -52,6 +56,25 @@ class ProductCommandService(
 
     @Transactional
     override fun save(product: ProductInfoVO): Boolean {
+        //브랜드가 존재하는지 확인한다
+        //존재하지 않는다면 Exception
+        require(findBrandPort.findExistBrand(product.brand) != null) {
+            throw ProductException(BRAND_NOT_EXIST, BRAND_NOT_EXIST.message)
+        }
+
+        //minProduct 의 정보를 갱신할 필요가 있는지 확인한다.
+        val minProduct = findProductPort.findMinProduct(product.category, product.brand)
+
+        require(minProduct != null) {
+            throw ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.message)
+        }
+
+        //현재 minProduct 의 가격보다 더 낮은 product 가 들어온것이라면 minProduct 정보도 같이 갱신한다.
+        if (minProduct.price > product.price) {
+            saveMinProduct(minProduct, product.price)
+        }
+
+        // 저장한다
         val savedProduct = saveProductPort.save(product.toProduct())
 
         //저장 데이터와 저장된 데이터가 같은지 비교하여 다르다면 실패로 간주한다.
@@ -92,5 +115,15 @@ class ProductCommandService(
         }
 
         return true
+    }
+
+    private fun saveMinProduct(product: ProductInfoVO, targetPrice : BigDecimal) {
+        product.price = targetPrice
+
+        val savedProduct = saveProductPort.saveMinProduct(product.toProduct())
+
+        //저장 데이터와 저장된 데이터가 같은지 비교하여 다르다면 실패로 간주한다.
+        if(!savedProduct.isSame(product.toProduct()))
+            throw ProductException(PRODUCT_SAVE_FAIL, PRODUCT_SAVE_FAIL.message)
     }
 }

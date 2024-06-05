@@ -2,6 +2,7 @@ package com.sinsa.adapter.outport
 
 import com.sinsa.entity.Product
 import com.sinsa.entity.ProductEntity
+import com.sinsa.repositories.MinProductJpaRepository
 import com.sinsa.repositories.ProductJpaRepository
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
@@ -15,7 +16,8 @@ internal class ProductCommandAdapterTest : BehaviorSpec() {
 
     init {
         val productJpaRepository = mockk<ProductJpaRepository>()
-        val productCommandAdapter = ProductCommandAdapter(productJpaRepository)
+        val minProductJpaRepository = mockk<MinProductJpaRepository>()
+        val productCommandAdapter = ProductCommandAdapter(productJpaRepository, minProductJpaRepository)
 
         Given("Save 하는 경우") {
             When("Save 이후 세이브 된 정보를 return 했을 때") {

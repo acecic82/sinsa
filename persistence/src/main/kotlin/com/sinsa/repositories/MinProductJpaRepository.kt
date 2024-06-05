@@ -12,4 +12,6 @@ interface MinProductJpaRepositoryCustom {
     fun findAllBrandSumPrice(limit: Long): List<BrandAndPrice>
 
     fun findProductListByBrandList(brandList: List<String>): List<ProductInfo>
+
+    fun findProductByCategoryAndBrand(category: String, brand: String): ProductInfo?
 }

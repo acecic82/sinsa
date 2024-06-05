@@ -7,7 +7,7 @@ data class ProductInfoVO (
     val productId: Long?,
     val category: String,
     val brand: String,
-    val price: BigDecimal
+    var price: BigDecimal
 ) {
     fun toProduct() = Product(
         this.productId,
