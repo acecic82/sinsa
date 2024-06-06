@@ -95,6 +95,9 @@ class ProductCommandService(
         return true
     }
 
+    //productVO
+    // id : originID
+    // category, brand, price -> 업데이트 해야할 값
     @Transactional
     override fun update(productVO: ProductInfoVO): Boolean {
         //update 시엔 productId를 필수적으로 받도록 한다 그래야 어떤 제품을 업데이트 하기 위함인지 알 수 있다.
@@ -120,7 +123,8 @@ class ProductCommandService(
             throw ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.message)
         }
 
-        //brand, category 기준으로 검색한 결과가 1개이고 && 업데이트하려는 값이 브랜드, 카테고리인 경우도 업데이트 불가
+        //brand, category 기준으로 검색한 결과가 1개이고 && 업데이트 하려는 값이 origin 과 브랜드, 카테고리가 다른 경우도 업데이트 불가
+        //만약 업데이트 하게 되면 브랜드 카테고리당 1개의 상품이 존재해야한다는 전제조건에서 벗어나게 된다.
         val productIdList = findProductPort.findProductId(originProduct.category, originProduct.brand, null)
 
         if (productIdList.size == 1 && (originProduct.brand != productVO.brand || originProduct.category != productVO.category)) {
