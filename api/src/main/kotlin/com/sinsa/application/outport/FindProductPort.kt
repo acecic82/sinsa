@@ -7,8 +7,8 @@ import java.math.BigDecimal
 
 interface FindProductPort {
     fun findLowestCategoryList() : List<ProductInfoVO>
-    fun findAllBrandSumPrice(limit: Long) : List<BrandAndPriceVO>
-    fun findBrandProductList(brandList: List<String>) : List<ProductInfoVO>
+    fun findAllBrandSumPriceFromMinProduct(limit: Long) : List<BrandAndPriceVO>
+    fun findBrandMinProductList(brandList: List<String>) : List<ProductInfoVO>
     fun findLowestListByCategory(category: String, limit: Long) : List<BrandAndPriceVO>
     fun findHighestListByCategory(category: String, limit: Long) : List<BrandAndPriceVO>
     fun findProductId(category:String, brand: String, price: BigDecimal?): List<Long?>

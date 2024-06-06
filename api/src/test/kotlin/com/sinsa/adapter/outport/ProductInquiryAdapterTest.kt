@@ -108,7 +108,7 @@ internal class ProductInquiryAdapterTest : BehaviorSpec() {
                 Then("ProductInfoVO 로 변환해서 반환해야 한다.") {
                     val voList = listOf(ProductInfoVO(product.id, product.category, product.brand, product.price))
 
-                    val result = productInquiryAdapter.findBrandProductList(listOf("A"))
+                    val result = productInquiryAdapter.findBrandMinProductList(listOf("A"))
 
                     assertEquals(result.size, voList.size)
 
@@ -133,7 +133,7 @@ internal class ProductInquiryAdapterTest : BehaviorSpec() {
                         BrandAndPriceVO(it.brand, it.price)
                     }
 
-                    val result = productInquiryAdapter.findAllBrandSumPrice(1L)
+                    val result = productInquiryAdapter.findAllBrandSumPriceFromMinProduct(1L)
 
                     assertEquals(voList.size, result.size)
 

@@ -40,13 +40,13 @@ internal class ProductInquiryServiceTest: BehaviorSpec() {
                 val productA = ProductInfoVO(null, "", "A", BigDecimal(1_000))
                 val productC = ProductInfoVO(null, "", "C", BigDecimal(1_000))
 
-                every { findProductPort.findAllBrandSumPrice(any()) } returns listOf(
+                every { findProductPort.findAllBrandSumPriceFromMinProduct(any()) } returns listOf(
                     brandPrice,
                     brandPrice2,
                     brandPrice3
                 )
 
-                every { findProductPort.findBrandProductList(any()) } returns listOf(productA, productC)
+                every { findProductPort.findBrandMinProductList(any()) } returns listOf(productA, productC)
 
                 Then("최저가의 product 정보를 return 한다") {
                     val expectedList = listOf(productA, productC)

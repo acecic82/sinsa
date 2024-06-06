@@ -21,13 +21,13 @@ class ProductInquiryAdapter (
         }
     }
 
-    override fun findAllBrandSumPrice(limit: Long): List<BrandAndPriceVO> {
+    override fun findAllBrandSumPriceFromMinProduct(limit: Long): List<BrandAndPriceVO> {
         return minProductJpaRepository.findAllBrandSumPrice(limit).map {
             BrandAndPriceVO(it.brand, it.price)
         }
     }
 
-    override fun findBrandProductList(brandList: List<String>): List<ProductInfoVO> {
+    override fun findBrandMinProductList(brandList: List<String>): List<ProductInfoVO> {
         return minProductJpaRepository.findProductListByBrandList(brandList).map {
             ProductInfoVO(it.id, it.category, it.brand, it.price)
         }

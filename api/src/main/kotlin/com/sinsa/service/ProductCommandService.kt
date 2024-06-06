@@ -1,13 +1,12 @@
 package com.sinsa.service
 
 import com.sinsa.application.inport.DeleteProductUseCase
+import com.sinsa.application.inport.SaveBrandUseCase
 import com.sinsa.application.inport.SaveProductUseCase
 import com.sinsa.application.inport.UpdateProductUseCase
-import com.sinsa.application.outport.DeleteProductPort
-import com.sinsa.application.outport.FindBrandPort
-import com.sinsa.application.outport.FindProductPort
-import com.sinsa.application.outport.SaveProductPort
+import com.sinsa.application.outport.*
 import com.sinsa.application.vo.ProductInfoVO
+import com.sinsa.application.vo.SaveBrandVO
 import com.sinsa.entity.Product
 import com.sinsa.response.ProductException
 import com.sinsa.response.enum.ExceptionCode.*
@@ -21,15 +20,20 @@ class ProductCommandService(
     private val deleteProductPort: DeleteProductPort,
     private val saveProductPort: SaveProductPort,
     private val findBrandPort: FindBrandPort,
-
-) : DeleteProductUseCase, SaveProductUseCase, UpdateProductUseCase {
+    private val saveBrandPort: SaveBrandPort
+) : DeleteProductUseCase, SaveProductUseCase, UpdateProductUseCase, SaveBrandUseCase {
 
     @Transactional
     override fun delete(vo: ProductInfoVO): Boolean {
+        //Id 가 없다면 삭제할 수 없습니다.
+        require(vo.productId != null) {
+            throw ProductException(PRODUCT_DELETE_FAIL, PRODUCT_DELETE_FAIL.message)
+        }
+
         //들어온 카테고리, Brand 기준으로 productId를 뽑아낸다.
         //만약 productId 들이 1개라면 삭제할 수 없다. 왜냐하면 category & brand 를 기준으로
         //상품이 최소 1개 존재해야 하기 떄문입니다.
-        val productIdList = findProductPort.findProductId(vo.category, vo.brand, null)
+        val productIdList = findProductPort.findProductByCategoryAndBrand(vo.category, vo.brand)
 
         require(productIdList.size > 1) {
             throw ProductException(PRODUCT_CATEGORY_BRAND_NOT_ENOUGH, PRODUCT_CATEGORY_BRAND_NOT_ENOUGH.message)
@@ -41,16 +45,22 @@ class ProductCommandService(
         //들어오는 경우는 없기 때문에 잘 발생하기 않고 3가지 조건이 모두 겹칠 가능성도 크지 않기 떄문에
         //삭제를 이런식으로 처리해봤습니다.
 
-        val deleteCandidate = vo.productId?.let {
-            listOf(findProductPort.findById(it)?.productId)
-        } ?: findProductPort.findProductId(vo.category, vo.brand, vo.price)
+        val deleteCandidate = findProductPort.findById(vo.productId)
+        val minProduct = findProductPort.findMinProduct(vo.category, vo.brand)
 
-        // id가 실제 테이블에 존재하는 않는 경우엔 Exception 을 발생시켜 삭제에 실패했음을 알린다.
-        deleteCandidate.forEach {
-            it?.let {
-                deleteProductPort.delete(it)
-            } ?: throw ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.message)
+        require(deleteCandidate != null && minProduct != null) {
+            throw ProductException(PRODUCT_DELETE_FAIL, PRODUCT_DELETE_FAIL.message)
         }
+
+        //만약 현재 지워질 상품이 해당 category & brand 에서 가장 낮은 가격이면 MinProduct 도 업데이트 해줘어야 한다.
+        if (minProduct.price == deleteCandidate.price) {
+            val exceptedProductList = productIdList.filter { vo.productId != it.productId }
+            val minPrice = exceptedProductList.minBy { it.price }.price
+
+            checkAndSaveMinProduct(minProduct, minPrice, true)
+        }
+
+        deleteProductPort.delete(deleteCandidate.productId!!)
 
         return true
     }
@@ -121,7 +131,7 @@ class ProductCommandService(
 
         //minProduct 도 업데이트 할 필요가 있는지 살펴본다.
 
-        executeMinProduct(originProduct, targetProduct)
+        executeMinProduct(productIdList.size, originProduct, targetProduct)
 
         originProduct.update(targetProduct)
         val updatedProduct = saveProductPort.save(originProduct)
@@ -136,6 +146,7 @@ class ProductCommandService(
     }
 
     private fun executeMinProduct(
+        originSize: Int,
         originProduct: Product,
         targetProduct: Product
     ) {
@@ -147,7 +158,12 @@ class ProductCommandService(
                 throw ProductException(PRODUCT_NOT_FOUND, PRODUCT_NOT_FOUND.message)
             }
 
-            checkAndSaveMinProduct(minProduct, targetProduct.price)
+            //사이즈가 1개라면 나의 데이터를 업데이트 해야하므로 무조건 업데이트 하도록 한다.
+            if(originSize == 1)
+                checkAndSaveMinProduct(minProduct, targetProduct.price, true)
+            else
+                checkAndSaveMinProduct(minProduct, targetProduct.price)
+
             return
         }
 
@@ -196,5 +212,35 @@ class ProductCommandService(
             if (!savedProduct.isSame(minProduct.toProduct()))
                 throw ProductException(PRODUCT_SAVE_FAIL, PRODUCT_SAVE_FAIL.message)
         }
+    }
+
+    @Transactional
+    override fun saveBrand(saveBrandVO: SaveBrandVO): Boolean {
+        //브랜드가 존재하는지 확입합니다
+        //만약 존재한다면 새로 추가할 수 없습니다.
+        require(findBrandPort.findExistBrand(saveBrandVO.brand) == null) {
+            throw ProductException(BRAND_ALREADY_EXIST, BRAND_ALREADY_EXIST.message)
+        }
+
+        val afterSavedBrand = saveBrandPort.save(null, brand = saveBrandVO.brand)
+
+        require(afterSavedBrand == saveBrandVO.brand) {
+            throw ProductException(PRODUCT_SAVE_FAIL, PRODUCT_SAVE_FAIL.message)
+        }
+
+        //product 테이블에 추가와 minTable 에도 그냥 추가하면 된다(기존 minTable 에 존재하지 않기 때문에
+
+        saveBrandVO.productList.map {
+            val product = it.toProduct()
+
+            val savedProduct = saveProductPort.save(product)
+            val savedMinProduct = saveProductPort.saveMinProduct(product)
+
+            if (!savedProduct.isSame(product) || !savedMinProduct.isSame(product)) {
+                throw ProductException(PRODUCT_SAVE_FAIL, PRODUCT_SAVE_FAIL.message)
+            }
+        }
+
+        return true
     }
 }

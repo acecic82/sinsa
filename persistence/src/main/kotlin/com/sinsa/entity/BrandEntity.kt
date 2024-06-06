@@ -13,4 +13,10 @@ data class BrandEntity (
 ) {
     constructor() : this(null, "")
 
+    companion object {
+        fun makeBrandEntity(id: Long?, brand: String) = BrandEntity(
+            id = id,
+            brand = brand
+        )
+    }
 }

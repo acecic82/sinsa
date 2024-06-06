@@ -8,6 +8,8 @@ import com.sinsa.application.vo.LowHighBrandInfoVO
 import com.sinsa.application.vo.ProductInfoVO
 import com.sinsa.entity.Product.Companion.BRAND_SUM_PRICE_LIMIT
 import com.sinsa.entity.Product.Companion.ORDER_PRICE_LIMIT
+import com.sinsa.response.ProductException
+import com.sinsa.response.enum.ExceptionCode.*
 import org.springframework.stereotype.Service
 
 
@@ -28,7 +30,7 @@ class ProductInquiryService(
         //한 가지 맹정믄 만약 sum 한 가격이 같은 최저가 브랜드가 10개를 넘어갈 경우 10개 이후에 나오는 브랜드는
         //항목에 포함이 될 수 없습니다. 이럴 경우엔 limit 의 적절한 값을 조절하여(business logic) 이 부분을 해결하면 됩니다.
         //business logic 이기 때문에 BRAND_SUM_PRICE_LIMIT 는 domain 에 있게 됩니다.
-        val brandInfoList = findProductPort.findAllBrandSumPrice(BRAND_SUM_PRICE_LIMIT)
+        val brandInfoList = findProductPort.findAllBrandSumPriceFromMinProduct(BRAND_SUM_PRICE_LIMIT)
 
         // 가져온 리스트 중 최저가를 찾아냅니다.
         val lowestPriceBrand = brandInfoList.minBy { it.price }
@@ -38,7 +40,7 @@ class ProductInquiryService(
             brandInfoList.filter { it.price == lowestPriceBrand.price }.map { it.brand }
 
         // 최저가 리스트로 상품에서 검색해서 리스트를 반환합니다.
-        return findProductPort.findBrandProductList(lowestPriceBrandList)
+        return findProductPort.findBrandMinProductList(lowestPriceBrandList)
     }
 
     override fun findLowAndHighBrand(category: String): LowHighBrandInfoVO {
@@ -46,6 +48,10 @@ class ProductInquiryService(
         //변수명이 candidate 인 이유는 limit 된 값이 1이 아닌이상 최소를 보장하지 않기 때문입니다.
         val lowestListCandidate = findProductPort.findLowestListByCategory(category, ORDER_PRICE_LIMIT)
         val highestListCandidate = findProductPort.findHighestListByCategory(category, ORDER_PRICE_LIMIT)
+
+        require(lowestListCandidate.isNotEmpty() && highestListCandidate.isNotEmpty()) {
+            throw ProductException(CATEGORY_NOT_EXIST, CATEGORY_NOT_EXIST.message)
+        }
 
         //최대, 최소 값을 찾습니다.
         val lowestBrand = lowestListCandidate.minBy { it.price }
