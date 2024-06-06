@@ -51,12 +51,16 @@ class ProductJpaRepositoryImpl(
                         productEntity.price.eq(Expressions.numberPath(BigDecimal::class.java, subQueryProduct, PRICE))
                     )
                 )
-                .select(Projections.constructor(ProductInfo::class.java,
+            .select(
+                Projections.constructor(
+                    ProductInfo::class.java,
                     productEntity.id,
                     productEntity.category,
                     productEntity.brand,
-                    productEntity.price))
-                .fetch()
+                    productEntity.price
+                )
+            )
+            .fetch()
     }
 
     override fun findLowestInfoByCategory(category: String, limit: Long): List<BrandAndPrice> {
@@ -94,6 +98,24 @@ class ProductJpaRepositoryImpl(
                 .and(price?.let { productEntity.price.eq(price) })
             )
             .select(productEntity.id)
+            .fetch()
+    }
+
+    override fun findProductByCategoryAndBrand(category: String, brand: String): List<ProductInfo> {
+        return from(productEntity)
+            .where(
+                productEntity.category.eq(category)
+                    .and(productEntity.brand.eq(brand))
+            )
+            .select(
+                Projections.constructor(
+                    ProductInfo::class.java,
+                    productEntity.id,
+                    productEntity.category,
+                    productEntity.brand,
+                    productEntity.price
+                )
+            )
             .fetch()
     }
 

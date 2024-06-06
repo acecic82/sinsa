@@ -64,4 +64,10 @@ class ProductInquiryAdapter (
             ProductInfoVO(it.id, it.category, it.brand, it.price)
         }
     }
+
+    override fun findProductByCategoryAndBrand(category: String, brand: String): List<ProductInfoVO> {
+        return productJpaRepository.findProductByCategoryAndBrand(category, brand).map {
+            ProductInfoVO(it.id, it.category, it.brand, it.price)
+        }
+    }
 }

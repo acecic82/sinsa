@@ -17,4 +17,6 @@ interface FindProductPort {
     fun findAll(): List<Product>
 
     fun findMinProduct(category: String, brand: String): ProductInfoVO?
+
+    fun findProductByCategoryAndBrand(category: String, brand: String): List<ProductInfoVO>
 }

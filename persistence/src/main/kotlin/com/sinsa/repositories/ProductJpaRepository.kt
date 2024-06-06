@@ -17,4 +17,6 @@ interface ProductJpaRepositoryCustom {
     fun findHighestInfoByCategory(category: String, limit: Long): List<BrandAndPrice>
 
     fun findProductId(category: String, brand: String, price: BigDecimal?): List<Long?>
+
+    fun findProductByCategoryAndBrand(category: String, brand: String): List<ProductInfo>
 }

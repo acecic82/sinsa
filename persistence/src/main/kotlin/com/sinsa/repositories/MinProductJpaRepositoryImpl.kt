@@ -2,19 +2,18 @@ package com.sinsa.repositories
 
 import com.querydsl.core.types.Projections
 import com.sinsa.entity.MinProductEntity
+import com.sinsa.entity.QMinProductEntity.Companion.minProductEntity
 import com.sinsa.vo.BrandAndPrice
+import com.sinsa.vo.ProductInfo
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository
-import com.sinsa.entity.QMinProductEntity.Companion.minProductEntity
-import com.sinsa.entity.QProductEntity
-import com.sinsa.vo.ProductInfo
 
 @Repository
 class MinProductJpaRepositoryImpl: MinProductJpaRepositoryCustom, QuerydslRepositorySupport(MinProductEntity::class.java) {
     override fun findAllBrandSumPrice(limit: Long): List<BrandAndPrice> {
         return from(minProductEntity)
             .groupBy(minProductEntity.brand)
-            .orderBy(QProductEntity.productEntity.price.sum().asc())
+            .orderBy(minProductEntity.price.sum().asc())
             .limit(limit)
             .select(
                 Projections.constructor(
