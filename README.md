@@ -15,13 +15,22 @@
 
 헥사고날 아키텍처를 기반으로 설계
 
+adapter -> 외부와 연결 되어있는 장소 (ex: Controller, Persistence)
+application -> Service 와 Adapter 를 연결하기 위한 useCase, port 를 저장한 장소 (Interface)
+service -> adapter 를 호출하는곳
+
+
+### 실행 방법
+
+api - src - main - kotlin - com - sinsa - SinSaApplication 실행
+
 ### 모듈
 
 API : Controller, UseCase, Service, Port 의 형태로 처리하는 모듈
 
-Domain : Business logic 처리를 위한 entity를 저장하고 있는 모듈
+Domain : Business logic 처리를 위한 entity 를 저장하고 있는 모듈
 
-Persistence : DB설정 및 DB entity가 저장되어있는 모듈
+Persistence : DB 설정 및 DB entity 가 저장되어있는 모듈
 
 ### 의존 관계
 
@@ -31,9 +40,24 @@ Persistence -> Domain
 
 ### API
 
+#### 모든 응답은 ResponseDTO 로 감싸져 있습니다.
+
+```
+
+data class ResponseDTO<T>(
+    val content: T? = null,
+    val code: ExceptionCode? = null,
+    val message: String? = null
+)
+
+```
+
 1. 카테고리 별 최저가 브랜드와 삼품 가격, 총액을 조회하는 API
 - detail : 최저 가격의 브랜드가 여러개인 경우는 여러개를 출력한다.
 ```
+
+Get /product/lowest/all-category
+
 request : 없음
 Response : 
 {
@@ -45,6 +69,9 @@ Response :
 2. 단일 브랜드로 모든 카테고리 상품을 구매할 때, 최저가격에 판매하는 브랜드와 카테고리의 상품가격, 총액을 조회하는 API
 - detail : 단일 브랜드로 모든 카테고리 상품을 구매할 때 최저가격을 찾는 브랜드가 여러 개인 경우 여러개를 리스트 형태로 반환한다.
 ```
+
+GET /product/lowest/brand
+
 request : 없음
 response : 
 {
@@ -61,6 +88,9 @@ response :
 3. 카테고리 이름으로 최저, 최고 가격의 브랜드와 상품 가격을 조회하는 API
 - detail : 카테고리 이름에서 최저 혹은 최고 가격의 브랜드가 여러개인 경우 여러개를 보여준다.
 ```
+
+Get /product/low-high/brand/{category}
+
 request: category name
 response : 
 {
@@ -70,10 +100,33 @@ response :
 }
 ```
 
-4. 브랜드 및 상품을 추가/삭제/업데이트 하는 API
+4. 모든 상품의 목록을 보여주는 API
+
+```
+
+Get /product/all
+
+request: 
+response: 
+[
+    ProductInfoDTO {
+        val productId: Long? = null,
+        val category: String,
+        val brand: String,
+        val price: BigDecimal
+    }
+]
+
+```
+
+
+5. 브랜드 및 상품을 추가/삭제/업데이트 하는 API
 
 - Delete
 ```
+
+Del /product/delete
+
 request
 {
     productId: Long? = null,
@@ -89,6 +142,9 @@ detail : id 가 있다면 id를 기준으로 삭제하고 id가 없다면 catego
 - Update
 
 ```
+
+Put /product/update
+
 request
 {
     productId: Long? = null,
@@ -104,6 +160,9 @@ detail : id 가 없다면 업데이트를 할 수 없다.
 
   - Save
 ```
+
+Post /product/save
+
 request
 {
     productId: Long? = null,
@@ -114,6 +173,32 @@ request
 
 response : Boolean
 ```
+
+- BrandSave
+
+```
+
+Post /product/brand/save
+
+request
+{
+    brand: Stringl
+    [    
+        ProductInfoDTO
+        {
+            productId: Long? = null,
+            category: String,
+            brand: String,
+            price: BigDecimal
+        }
+    ]   
+    
+}
+response : Boolean
+
+
+```
+
 
 ### DB
 
