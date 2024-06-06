@@ -38,6 +38,13 @@ API -> Domain, Persistence
 
 Persistence -> Domain
 
+### Test
+
+UnitTest 일부 작성
+
+아쉬운 부분 : Spring Boot Test, Data Jpa Test 등을 하고 싶었지만 급격한 로직 변경으로
+기존 테스트 오류 나는 부분만 급하게 작성하고 일부분 삭제
+
 ### API
 
 #### 모든 응답은 ResponseDTO 로 감싸져 있습니다.
